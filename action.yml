@@ -25,6 +25,8 @@ inputs:
     description: 'Read and output the value but do not edit any values'
     default: false
 outputs:
+  comment-id:
+    description: 'The ID of the comment that was created or updated. This output will not be set with read-only mode.'
   value:
     description: 'the stored value if available. Otherwise, this output will not be set.'
 runs:

@@ -1,5 +1,5 @@
 name: 'build-test'
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
@@ -7,18 +7,42 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - run: |
           npm install
       - run: |
           npm run all
-  test: # make sure the action works on a clean machine without building
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./
+      - run: |
+          echo "| context | key | value | " >> $GITHUB_STEP_SUMMARY
+          echo "| :-- | :-- | :-- | " >> $GITHUB_STEP_SUMMARY
+      - id: write-values
+        uses: ./
         with:
-          milliseconds: 1000
+          id: "foo"
+          value: "baz"
+      - run: |
+          echo "| write-values| foo | ${{ steps.write-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
+      - id: read-values
+        uses: ./
+        with:
+          id: "foo"
+          read-only: true
+      - run: |
+          echo "| read-values| foo | ${{ steps.read-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
+      - id: read-values-for-missing
+        uses: ./
+        with:
+          id: "bar"
+          read-only: true
+      - run: |
+          echo "| read-values-for-missing| bar | ${{ steps.read-values-for-missing.outputs.value }}|" >> $GITHUB_STEP_SUMMARY
