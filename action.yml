@@ -2,10 +2,33 @@ name: 'Your name here'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 inputs:
-  milliseconds: # change this
+  token:
+    requried: true
+    description: 'GitHub token'
+    default: ${{ github.token }}
+  id:
     required: true
     description: 'input description here'
     default: 'default value if applicable'
+  issue-number:
+    required: true
+    description: 'Issue/Pull Request number'
+  value:
+    required: false
+    description: 'Value to store. If not provided and not read-only, the action will fail.'
+  style:
+    required: false
+    description: 'Style of how the input value will be stored. Can be "string", "integer", "float", or "boolean".'
+    default: 'string'
+  read-only:
+    required: false
+    description: 'Read and output the value but do not edit any values'
+    default: false
+outputs:
+  comment-id:
+    description: 'The ID of the comment that was created or updated. This output will not be set with read-only mode.'
+  value:
+    description: 'the stored value if available. Otherwise, this output will not be set.'
 runs:
   using: 'node16'
   main: 'dist/index.js'
