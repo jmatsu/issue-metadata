@@ -30,6 +30,7 @@ jobs:
         with:
           id: "foo"
           value: "baz"
+          issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
           echo "| write-values| foo | ${{ steps.write-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
       - id: read-values
@@ -37,6 +38,7 @@ jobs:
         with:
           id: "foo"
           read-only: true
+          issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
           echo "| read-values| foo | ${{ steps.read-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
       - id: read-values-for-missing
@@ -44,5 +46,6 @@ jobs:
         with:
           id: "bar"
           read-only: true
+          issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
           echo "| read-values-for-missing| bar | ${{ steps.read-values-for-missing.outputs.value }}|" >> $GITHUB_STEP_SUMMARY
