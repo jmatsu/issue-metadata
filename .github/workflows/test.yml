@@ -22,9 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          echo "| context | key | value | " >> $GITHUB_STEP_SUMMARY
-          echo "| :-- | :-- | :-- | " >> $GITHUB_STEP_SUMMARY
       - id: write-values
         uses: ./
         with:
@@ -32,6 +29,8 @@ jobs:
           value: "baz"
           issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
+          echo "| context | key | value | " >> $GITHUB_STEP_SUMMARY
+          echo "| :-- | :-- | :-- | " >> $GITHUB_STEP_SUMMARY
           echo "| write-values| foo | ${{ steps.write-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
       - id: read-values
         uses: ./
@@ -40,6 +39,8 @@ jobs:
           read-only: true
           issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
+          echo "| context | key | value | " >> $GITHUB_STEP_SUMMARY
+          echo "| :-- | :-- | :-- | " >> $GITHUB_STEP_SUMMARY
           echo "| read-values| foo | ${{ steps.read-values.outputs.value }} |" >> $GITHUB_STEP_SUMMARY
       - id: read-values-for-missing
         uses: ./
@@ -48,4 +49,6 @@ jobs:
           read-only: true
           issue-number: ${{ github.event.pull_request.number || '1' }}
       - run: |
+          echo "| context | key | value | " >> $GITHUB_STEP_SUMMARY
+          echo "| :-- | :-- | :-- | " >> $GITHUB_STEP_SUMMARY
           echo "| read-values-for-missing| bar | ${{ steps.read-values-for-missing.outputs.value }}|" >> $GITHUB_STEP_SUMMARY
