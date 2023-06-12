@@ -1,8 +1,15 @@
-import {anchor, extractValues, createMetadata, getMetadata, buildCommentBody, devider} from '../src/conventions'
+import {
+  anchor,
+  extractValues,
+  createMetadata,
+  getMetadata,
+  buildCommentBody,
+  devider
+} from '../src/conventions'
 import {expect, test} from '@jest/globals'
 
 test('createMetadata embed a json object into a comment', async () => {
-  const comment = createMetadata({"bar": "bar_value"})
+  const comment = createMetadata({bar: 'bar_value'})
 
   expect(comment).toEqual(`<!--
 {
@@ -34,7 +41,7 @@ test('extractValues can extract values from the built body', async () => {
 })
 
 test('extractValues can extract all values', async () => {
-  const body = buildCommentBody('bar', 'bar_value', {'foo': 'foo_value'})
+  const body = buildCommentBody('bar', 'bar_value', {foo: 'foo_value'})
   const values = extractValues(body)
 
   expect(values['bar']).toEqual('bar_value')
