@@ -14,8 +14,8 @@ const extractValues = (body) => {
     if (!fragment) {
         throw new Error('this comment is invalid because the fragment is broken.');
     }
-    const start = fragment.indexOf('<!--\n') + '<!-- '.length;
-    const end = fragment.lastIndexOf('\n-->');
+    const start = fragment.indexOf('<!--') + '<!--'.length;
+    const end = fragment.lastIndexOf('-->');
     const valueContent = fragment.substring(start, end);
     return JSON.parse(valueContent);
 };
