@@ -1,3 +1,5 @@
+import * as core from '@actions/core'
+
 export type Values = {
   [keyof: string]: unknown
 }
@@ -11,8 +13,8 @@ export const extractValues = (body: string): Values => {
     throw new Error('this comment is invalid because the fragment is broken.')
   }
 
-  const start = fragment.indexOf('<!--\n') + '<!-- '.length
-  const end = fragment.lastIndexOf('\n-->')
+  const start = fragment.indexOf('<!--') + '<!--'.length
+  const end = fragment.lastIndexOf('-->')
 
   const valueContent = fragment.substring(start, end)
 

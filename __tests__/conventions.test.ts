@@ -14,6 +14,18 @@ test('extractValues can extract values from the built body', async () => {
   expect(values['bar']).toEqual('bar_value')
 })
 
+test('extractValues extracts values from the content', async () => {
+  const body = `brabrabra
+
+  ${anchor}
+  <!--
+  { "bar": "bar_value" }
+  -->`
+  const values = extractValues(body)
+
+  expect(values['bar']).toEqual('bar_value')
+})
+
 test('extractValues can extract all values', async () => {
   const body = buildCommentBody('bar', 'bar_value', {'foo': 'foo_value'})
   const values = extractValues(body)
