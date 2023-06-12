@@ -1,105 +1,97 @@
 <p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/jmatsu/issue-metadata/actions"><img alt="typescript-action status" src="https://github.com/jmatsu/issue-metadata/workflows/build-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+# Preserve metadatas on issues/PRs
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+This action uses an issue comment to save/read values for each issue/pull-request.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
-
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+## Put a new value
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+    steps:
+      - id: write-value
+        uses: jmatsu/issue-metadata@v1
+        with:
+          id: "<value id to write>"
+          value: "<value itself>"
+          issue-number: ${{ github.event.pull_request.number }}
+      - run: echo "${{ steps.write-value.outputs.value }}"
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+**You can save values as json primitives**
 
-## Usage:
+```yaml
+    steps:
+      - id: write-value
+        uses: jmatsu/issue-metadata@v1
+        with:
+          id: "<value id to write>"
+          value: "<value itself>"
+          # e.g. string(default), integer, float, boolean
+          style: integer # save and read a value as Integer. i.e. 1.0 will be saved as 1.
+          issue-number: ${{ github.event.pull_request.number }}
+```
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+If you would like to save a JSON object, you need to save the value as string and parse it in later steps.
+
+```yaml
+    steps:
+      - id: write-value
+        uses: jmatsu/issue-metadata@v1
+        with:
+          id: 'test'
+          value: '{ "name1": "value1" }'
+          style: string
+          issue-number: ${{ github.event.pull_request.number }}
+      - if: ${{ fromJSON(steps.write-value.outputs.value).name == 'name1' }}
+        run: echo ${{ fromJSON(steps.write-value.outputs.value) }} # => { "name1": "value1" }
+```
+
+
+## Read a value
+
+```yaml
+    steps:
+      - id: read-value
+        uses: jmatsu/issue-metadata@v1
+        with:
+          id: "<value id to read>"
+          read-only: true # required if you don't want to write any value
+          issue-number: ${{ github.event.pull_request.number }}
+      - run: echo "${{ steps.read-value.outputs.value }}"
+```
+
+**You can read a value as json primitive**
+
+```yaml
+    steps:
+      - id: read-value
+        uses: jmatsu/issue-metadata@v1
+        with:
+          id: "foo"
+          # e.g. string(default), integer, float, boolean
+          style: integer
+          issue-number: ${{ github.event.pull_request.number }}
+        # steps.read-value.outputs.value == 1 even if *foo*'s value is 1.1
+```
+
+# Development
+
+- Make sure all tests are passed by running `npm run test`.
+- You don't have to commit the changed artifact under `dist/`.
+  - All changes under `dists/` will be rejected because of the security reason.
+
+# Release
+
+This section is only for those who have write-permission of this repository.
+
+```bash
+$ npm run all
+$ git add dist # and commit
+$ git push origin releases/v1
+$ git tag v1.x.y
+$ git push v1.x.y:v1 -f
+```
+
+See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
